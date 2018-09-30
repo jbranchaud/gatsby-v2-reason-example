@@ -3,6 +3,7 @@
 
 var Link = require("./Link.bs.js");
 var React = require("react");
+var FetchData = require("./FetchData.bs.js");
 var ReasonReact = require("reason-react/src/ReasonReact.js");
 
 var component = ReasonReact.statelessComponent("App");
@@ -19,7 +20,7 @@ function make() {
           /* willUpdate */component[/* willUpdate */7],
           /* shouldUpdate */component[/* shouldUpdate */8],
           /* render */(function () {
-              return React.createElement("div", undefined, "This is the app", React.createElement("br", undefined), ReasonReact.element(undefined, undefined, Link.make("/page-2", /* array */["Link To Page 2"])));
+              return React.createElement("div", undefined, "This is the app", React.createElement("br", undefined), ReasonReact.element(undefined, undefined, FetchData.make(/* array */[])), ReasonReact.element(undefined, undefined, Link.make("/page-2", /* array */["Link To Page 2"])));
             }),
           /* initialState */component[/* initialState */10],
           /* retainedProps */component[/* retainedProps */11],

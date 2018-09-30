@@ -1,7 +1,7 @@
 {
   "name": "gatsby-v2-reason-example",
   "reason": { "react-jsx": 2 },
-  "bs-dependencies": ["reason-react"],
+  "bs-dependencies": ["reason-react", "bs-fetch", "@glennsl/bs-json"],
   "sources": [
     {
       "dir": "src",

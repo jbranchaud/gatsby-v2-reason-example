@@ -6,6 +6,7 @@ let make = _children => {
     <div>
       {ReasonReact.string("This is the app")}
       <br />
+      <FetchData />
       <Link to_="/page-2"> {ReasonReact.string("Link To Page 2")} </Link>
     </div>,
 };

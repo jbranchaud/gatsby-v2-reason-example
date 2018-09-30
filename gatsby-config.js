@@ -19,4 +19,8 @@ module.exports = {
     },
     'gatsby-plugin-offline',
   ],
-};
+  proxy: {
+    prefix: '/api',
+    url: 'https://rickandmortyapi.com',
+  },
+}
