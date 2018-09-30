@@ -64,6 +64,17 @@ type state = {characters: list(character)};
 type action =
   | SetCharacters(list(character));
 
+let fetchCharacters = () =>
+  Js.Promise.(
+    Fetch.fetch("/api/character/")
+    |> then_(Fetch.Response.json)
+    |> then_(json => json |> Decode.results |> resolve)
+    |> then_(results =>
+         results |> (results => Some(results.results)) |> resolve
+       )
+    |> catch(_err => None |> resolve)
+  );
+
 /* Component template declaration.
    Needs to be **after** state and action declarations! */
 let component = ReasonReact.reducerComponent("FetchData");
@@ -74,16 +85,19 @@ let make = _children => {
   /* spread the other default fields of component here and override a few */
   ...component,
   initialState: () => {characters: []},
-  didMount: _self => {
+  didMount: self => {
     Js.log("We are mounting!");
-    let _ =
-      Js.Promise.(
-        Fetch.fetch("/api/character/")
-        |> then_(Fetch.Response.json)
-        |> then_(json => json |> Decode.results |> resolve)
-        |> then_(results => results.results |> Js.log |> resolve)
-      );
-    ();
+    Js.Promise.(
+      fetchCharacters()
+      |> then_(result =>
+           switch (result) {
+           | Some(characters) =>
+             self.send(SetCharacters(characters)) |> resolve
+           | None => self.send(SetCharacters([])) |> resolve
+           }
+         )
+    )
+    |> ignore;
   },
   /* State transitions */
   reducer: (action, state) =>
@@ -93,5 +107,17 @@ let make = _children => {
   render: self =>
     <div>
       <p> {ReasonReact.string("We are fetching some characters!")} </p>
+      <ul>
+        {
+          self.state.characters
+          |> List.map(character =>
+               <li key={string_of_int(character.id)}>
+                 {ReasonReact.string(character.name)}
+               </li>
+             )
+          |> Array.of_list
+          |> ReasonReact.array
+        }
+      </ul>
     </div>,
 };
