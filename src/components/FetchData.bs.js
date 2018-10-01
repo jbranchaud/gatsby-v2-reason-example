@@ -34,11 +34,10 @@ var Decode = /* module */[
 
 function fetchCharacters() {
   return fetch("/api/character/").then((function (prim) {
-                      return prim.json();
-                    })).then((function (json) {
-                    return Promise.resolve(results(json));
-                  })).then((function (results) {
-                  return Promise.resolve(results[/* results */0]);
+                    return prim.json();
+                  })).then((function (json) {
+                  var results$1 = results(json);
+                  return Promise.resolve(results$1[/* results */0]);
                 })).catch((function () {
                 return Promise.resolve(undefined);
               }));
@@ -56,9 +55,9 @@ function make() {
               console.log("We are mounting!");
               fetchCharacters(/* () */0).then((function (result) {
                       if (result !== undefined) {
-                        return Promise.resolve(Curry._1(self[/* send */3], /* SetCharacters */[result]));
+                        return Promise.resolve(Curry._1(self[/* send */3], /* SetCharacters */Block.__(0, [result])));
                       } else {
-                        return Promise.resolve(Curry._1(self[/* send */3], /* SetCharacters */[/* [] */0]));
+                        return Promise.resolve(Curry._1(self[/* send */3], /* SetLoadingFailed */Block.__(1, ["Failed to load some characters."])));
                       }
                     }));
               return /* () */0;
@@ -68,18 +67,40 @@ function make() {
           /* willUpdate */component[/* willUpdate */7],
           /* shouldUpdate */component[/* shouldUpdate */8],
           /* render */(function (self) {
-              return React.createElement("div", undefined, React.createElement("p", undefined, "We are fetching some characters!"), React.createElement("ul", undefined, $$Array.of_list(List.map((function (character) {
-                                        return React.createElement("li", {
-                                                    key: String(character[/* id */0])
-                                                  }, character[/* name */1]);
-                                      }), self[/* state */1][/* characters */0]))));
+              var match = self[/* state */1][/* status */0];
+              if (typeof match === "number") {
+                if (match !== 0) {
+                  return React.createElement("div", undefined, React.createElement("ul", undefined, $$Array.of_list(List.map((function (character) {
+                                            return React.createElement("li", {
+                                                        key: String(character[/* id */0])
+                                                      }, character[/* name */1] + (" (" + (character[/* status */2] + ")")));
+                                          }), self[/* state */1][/* characters */1]))));
+                } else {
+                  return React.createElement("p", undefined, "We are fetching some characters...");
+                }
+              } else {
+                return React.createElement("p", undefined, match[0]);
+              }
             }),
           /* initialState */(function () {
-              return /* record */[/* characters : [] */0];
+              return /* record */[
+                      /* status : Loading */0,
+                      /* characters : [] */0
+                    ];
             }),
           /* retainedProps */component[/* retainedProps */11],
           /* reducer */(function (action, _) {
-              return /* Update */Block.__(0, [/* record */[/* characters */action[0]]]);
+              if (action.tag) {
+                return /* Update */Block.__(0, [/* record */[
+                            /* status : Error */[action[0]],
+                            /* characters : [] */0
+                          ]]);
+              } else {
+                return /* Update */Block.__(0, [/* record */[
+                            /* status : Ready */1,
+                            /* characters */action[0]
+                          ]]);
+              }
             }),
           /* jsElementWrapped */component[/* jsElementWrapped */13]
         ];

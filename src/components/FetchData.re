@@ -34,6 +34,11 @@
      ]
    } */
 
+type status =
+  | Loading
+  | Error(string)
+  | Ready;
+
 type character = {
   id: int,
   name: string,
@@ -58,19 +63,25 @@ module Decode = {
 };
 
 /* State declaration */
-type state = {characters: list(character)};
+type state = {
+  status,
+  characters: list(character),
+};
 
 /* Action declaration */
 type action =
-  | SetCharacters(list(character));
+  | SetCharacters(list(character))
+  | SetLoadingFailed(string);
 
 let fetchCharacters = () =>
   Js.Promise.(
     Fetch.fetch("/api/character/")
     |> then_(Fetch.Response.json)
-    |> then_(json => json |> Decode.results |> resolve)
-    |> then_(results =>
-         results |> (results => Some(results.results)) |> resolve
+    |> then_(json =>
+         json
+         |> Decode.results
+         |> (results => Some(results.results))
+         |> resolve
        )
     |> catch(_err => None |> resolve)
   );
@@ -84,7 +95,7 @@ let component = ReasonReact.reducerComponent("FetchData");
 let make = _children => {
   /* spread the other default fields of component here and override a few */
   ...component,
-  initialState: () => {characters: []},
+  initialState: () => {status: Loading, characters: []},
   didMount: self => {
     Js.log("We are mounting!");
     Js.Promise.(
@@ -93,7 +104,9 @@ let make = _children => {
            switch (result) {
            | Some(characters) =>
              self.send(SetCharacters(characters)) |> resolve
-           | None => self.send(SetCharacters([])) |> resolve
+           | None =>
+             self.send(SetLoadingFailed("Failed to load some characters."))
+             |> resolve
            }
          )
     )
@@ -102,22 +115,34 @@ let make = _children => {
   /* State transitions */
   reducer: (action, state) =>
     switch (action) {
-    | SetCharacters(characters) => ReasonReact.Update({...state, characters})
+    | SetCharacters(characters) =>
+      ReasonReact.Update({...state, characters, status: Ready})
+    | SetLoadingFailed(msg) =>
+      ReasonReact.Update({...state, characters: [], status: Error(msg)})
     },
   render: self =>
-    <div>
-      <p> {ReasonReact.string("We are fetching some characters!")} </p>
-      <ul>
-        {
-          self.state.characters
-          |> List.map(character =>
-               <li key={string_of_int(character.id)}>
-                 {ReasonReact.string(character.name)}
-               </li>
-             )
-          |> Array.of_list
-          |> ReasonReact.array
-        }
-      </ul>
-    </div>,
+    switch (self.state.status) {
+    | Loading =>
+      <p> {ReasonReact.string("We are fetching some characters...")} </p>
+    | Error(msg) => <p> {ReasonReact.string(msg)} </p>
+    | Ready =>
+      <div>
+        <ul>
+          {
+            self.state.characters
+            |> List.map(character =>
+                 <li key={string_of_int(character.id)}>
+                   {
+                     ReasonReact.string(
+                       character.name ++ " (" ++ character.status ++ ")",
+                     )
+                   }
+                 </li>
+               )
+            |> Array.of_list
+            |> ReasonReact.array
+          }
+        </ul>
+      </div>
+    },
 };
