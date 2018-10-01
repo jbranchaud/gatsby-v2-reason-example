@@ -43,6 +43,18 @@ function fetchCharacters() {
               }));
 }
 
+function listCharacters(characters) {
+  if (characters) {
+    return React.createElement("ul", undefined, $$Array.of_list(List.map((function (character) {
+                          return React.createElement("li", {
+                                      key: String(character[/* id */0])
+                                    }, character[/* name */1] + (" (" + (character[/* status */2] + ")")));
+                        }), characters)));
+  } else {
+    return React.createElement("p", undefined, "No characters to speak of");
+  }
+}
+
 var component = ReasonReact.reducerComponent("FetchData");
 
 function make() {
@@ -70,11 +82,7 @@ function make() {
               var match = self[/* state */1][/* status */0];
               if (typeof match === "number") {
                 if (match !== 0) {
-                  return React.createElement("div", undefined, React.createElement("ul", undefined, $$Array.of_list(List.map((function (character) {
-                                            return React.createElement("li", {
-                                                        key: String(character[/* id */0])
-                                                      }, character[/* name */1] + (" (" + (character[/* status */2] + ")")));
-                                          }), self[/* state */1][/* characters */1]))));
+                  return React.createElement("div", undefined, listCharacters(self[/* state */1][/* characters */1]));
                 } else {
                   return React.createElement("p", undefined, "We are fetching some characters...");
                 }
@@ -108,6 +116,7 @@ function make() {
 
 exports.Decode = Decode;
 exports.fetchCharacters = fetchCharacters;
+exports.listCharacters = listCharacters;
 exports.component = component;
 exports.make = make;
 /* component Not a pure module */

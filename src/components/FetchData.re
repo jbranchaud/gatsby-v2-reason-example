@@ -86,6 +86,28 @@ let fetchCharacters = () =>
     |> catch(_err => None |> resolve)
   );
 
+let listCharacters = (characters: list(character)) =>
+  switch (characters) {
+  | [] => <p> {ReasonReact.string("No characters to speak of")} </p>
+  | characters =>
+    <ul>
+      {
+        characters
+        |> List.map(character =>
+             <li key={string_of_int(character.id)}>
+               {
+                 ReasonReact.string(
+                   character.name ++ " (" ++ character.status ++ ")",
+                 )
+               }
+             </li>
+           )
+        |> Array.of_list
+        |> ReasonReact.array
+      }
+    </ul>
+  };
+
 /* Component template declaration.
    Needs to be **after** state and action declarations! */
 let component = ReasonReact.reducerComponent("FetchData");
@@ -125,24 +147,6 @@ let make = _children => {
     | Loading =>
       <p> {ReasonReact.string("We are fetching some characters...")} </p>
     | Error(msg) => <p> {ReasonReact.string(msg)} </p>
-    | Ready =>
-      <div>
-        <ul>
-          {
-            self.state.characters
-            |> List.map(character =>
-                 <li key={string_of_int(character.id)}>
-                   {
-                     ReasonReact.string(
-                       character.name ++ " (" ++ character.status ++ ")",
-                     )
-                   }
-                 </li>
-               )
-            |> Array.of_list
-            |> ReasonReact.array
-          }
-        </ul>
-      </div>
+    | Ready => <div> {listCharacters(self.state.characters)} </div>
     },
 };
