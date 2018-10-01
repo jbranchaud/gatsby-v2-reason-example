@@ -88,18 +88,14 @@ let fetchCharacters = () =>
 
 let listCharacters = (characters: list(character)) =>
   switch (characters) {
-  | [] => <p> {ReasonReact.string("No characters to speak of")} </p>
+  | [] => <p> <Str s="No characters to speak of" /> </p>
   | characters =>
     <ul>
       {
         characters
         |> List.map(character =>
              <li key={string_of_int(character.id)}>
-               {
-                 ReasonReact.string(
-                   character.name ++ " (" ++ character.status ++ ")",
-                 )
-               }
+               <Str s={character.name ++ " (" ++ character.status ++ ")"} />
              </li>
            )
         |> Array.of_list
@@ -144,8 +140,7 @@ let make = _children => {
     },
   render: self =>
     switch (self.state.status) {
-    | Loading =>
-      <p> {ReasonReact.string("We are fetching some characters...")} </p>
+    | Loading => <p> <Str s="We are fetching some characters..." /> </p>
     | Error(msg) => <p> {ReasonReact.string(msg)} </p>
     | Ready => <div> {listCharacters(self.state.characters)} </div>
     },
