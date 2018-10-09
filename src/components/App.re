@@ -4,7 +4,7 @@ let make = _children => {
   ...component,
   render: _self =>
     <div>
-      {ReasonReact.string("This is the app")}
+      <Str s="Rick and Morty" />
       <br />
       <FetchData />
       <Link to_="/page-2"> {ReasonReact.string("Link To Page 2")} </Link>
