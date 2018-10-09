@@ -15,7 +15,8 @@ function character(json) {
           /* id */Json_decode.field("id", Json_decode.$$int, json),
           /* name */Json_decode.field("name", Json_decode.string, json),
           /* status */Json_decode.field("status", Json_decode.string, json),
-          /* species */Json_decode.field("species", Json_decode.string, json)
+          /* species */Json_decode.field("species", Json_decode.string, json),
+          /* imageUrl */Json_decode.field("image", Json_decode.string, json)
         ];
 }
 
@@ -46,10 +47,22 @@ function fetchCharacters() {
 
 function listCharacters(characters) {
   if (characters) {
-    return React.createElement("ul", undefined, $$Array.of_list(List.map((function (character) {
+    return React.createElement("ul", {
+                className: "character-list"
+              }, $$Array.of_list(List.map((function (character) {
                           return React.createElement("li", {
                                       key: String(character[/* id */0])
-                                    }, ReasonReact.element(undefined, undefined, Str.make(character[/* name */1] + (" (" + (character[/* status */2] + ")")), /* array */[])));
+                                    }, React.createElement("div", {
+                                          className: "character-card"
+                                        }, React.createElement("img", {
+                                              className: "character-img",
+                                              alt: character[/* name */1],
+                                              src: character[/* imageUrl */4]
+                                            }), React.createElement("span", {
+                                              className: "character-data"
+                                            }, ReasonReact.element(undefined, undefined, Str.make(character[/* name */1], /* array */[])), React.createElement("span", {
+                                                  className: "character-status"
+                                                }, ReasonReact.element(undefined, undefined, Str.make(character[/* status */2], /* array */[]))))));
                         }), characters)));
   } else {
     return React.createElement("p", undefined, ReasonReact.element(undefined, undefined, Str.make("No characters to speak of", /* array */[])));
@@ -88,7 +101,7 @@ function make() {
                   return React.createElement("p", undefined, ReasonReact.element(undefined, undefined, Str.make("We are fetching some characters...", /* array */[])));
                 }
               } else {
-                return React.createElement("p", undefined, match[0]);
+                return React.createElement("p", undefined, ReasonReact.element(undefined, undefined, Str.make(match[0], /* array */[])));
               }
             }),
           /* initialState */(function () {

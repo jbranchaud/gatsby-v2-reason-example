@@ -44,22 +44,24 @@ type character = {
   name: string,
   status: string,
   species: string,
+  imageUrl: string,
 };
 
 type rickAndMortyResponse = {results: list(character)};
 
 module Decode = {
-  let character = json: character =>
-    Json.Decode.{
-      id: field("id", int, json),
-      name: field("name", string, json),
-      status: field("status", string, json),
-      species: field("species", string, json),
-    };
-  let characters = json: list(character) =>
-    Json.Decode.list(character, json);
-  let results = json: rickAndMortyResponse =>
-    Json.Decode.{results: field("results", characters, json)};
+  open Json.Decode;
+  let character = json: character => {
+    id: field("id", int, json),
+    name: field("name", string, json),
+    status: field("status", string, json),
+    species: field("species", string, json),
+    imageUrl: field("image", string, json),
+  };
+  let characters = json: list(character) => list(character, json);
+  let results = json: rickAndMortyResponse => {
+    results: field("results", characters, json),
+  };
 };
 
 /* State declaration */
@@ -90,12 +92,24 @@ let listCharacters = (characters: list(character)) =>
   switch (characters) {
   | [] => <p> <Str s="No characters to speak of" /> </p>
   | characters =>
-    <ul>
+    <ul className="character-list">
       {
         characters
         |> List.map(character =>
              <li key={string_of_int(character.id)}>
-               <Str s={character.name ++ " (" ++ character.status ++ ")"} />
+               <div className="character-card">
+                 <img
+                   className="character-img"
+                   src={character.imageUrl}
+                   alt={character.name}
+                 />
+                 <span className="character-data">
+                   <Str s={character.name} />
+                   <span className="character-status">
+                     <Str s={character.status} />
+                   </span>
+                 </span>
+               </div>
              </li>
            )
         |> Array.of_list
@@ -141,7 +155,7 @@ let make = _children => {
   render: self =>
     switch (self.state.status) {
     | Loading => <p> <Str s="We are fetching some characters..." /> </p>
-    | Error(msg) => <p> {ReasonReact.string(msg)} </p>
+    | Error(msg) => <p> <Str s=msg /> </p>
     | Ready => <div> {listCharacters(self.state.characters)} </div>
     },
 };
