@@ -626,11 +626,14 @@ pre tt:after {
 .character-list {
   list-style: none;
   margin: 0;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .character-card {
   display: flex;
   align-items: center;
+  width: 400px;
 }
 
 .character-card .character-img {
