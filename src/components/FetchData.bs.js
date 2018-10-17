@@ -60,25 +60,26 @@ function fetchCharacters() {
               }));
 }
 
-function fetchPage(pageUrl, send) {
+function fetchPage(pageUrl, self) {
   var parts = pageUrl.split("rickandmortyapi.com");
   var apiUrl = List.nth($$Array.to_list(parts), 1);
-  return fetch(apiUrl).then((function (prim) {
-                      return prim.json();
-                    })).then((function (json) {
-                    return Promise.resolve(results(json));
-                  })).catch((function () {
-                  return Promise.resolve(undefined);
-                })).then((function (result) {
-                if (result !== undefined) {
-                  var rickAndMortyResponse = result;
-                  var characters = rickAndMortyResponse[/* results */0];
-                  Curry._1(send, /* SetCharacters */Block.__(0, [characters]));
-                  return Promise.resolve(Curry._1(send, /* SetResponseInfo */Block.__(1, [rickAndMortyResponse[/* info */1]])));
-                } else {
-                  return Promise.resolve(Curry._1(send, /* SetLoadingFailed */Block.__(2, ["Failed to load some characters."])));
-                }
-              }));
+  fetch(apiUrl).then((function (prim) {
+                return prim.json();
+              })).then((function (json) {
+              return Promise.resolve(results(json));
+            })).catch((function () {
+            return Promise.resolve(undefined);
+          })).then((function (result) {
+          if (result !== undefined) {
+            var rickAndMortyResponse = result;
+            var characters = rickAndMortyResponse[/* results */0];
+            Curry._1(self[/* send */3], /* SetCharacters */Block.__(0, [characters]));
+            return Promise.resolve(Curry._1(self[/* send */3], /* SetResponseInfo */Block.__(1, [rickAndMortyResponse[/* info */1]])));
+          } else {
+            return Promise.resolve(Curry._1(self[/* send */3], /* SetLoadingFailed */Block.__(2, ["Failed to load some characters."])));
+          }
+        }));
+  return /* () */0;
 }
 
 function listCharacters(characters) {
@@ -152,13 +153,13 @@ function make() {
               return React.createElement("div", undefined, React.createElement("span", undefined, React.createElement("button", {
                                   disabled: !hasPrevious,
                                   onClick: (function () {
-                                      fetchPage(prevUrl, self[/* send */3]);
+                                      Curry._1(self[/* send */3], /* FetchNewPage */Block.__(3, [prevUrl]));
                                       return /* () */0;
                                     })
                                 }, ReasonReact.element(undefined, undefined, Str.make("«" + " previous", /* array */[]))), ReasonReact.element(undefined, undefined, Str.make(" ... ", /* array */[])), React.createElement("button", {
                                   disabled: !hasNext,
                                   onClick: (function () {
-                                      fetchPage(nextUrl, self[/* send */3]);
+                                      Curry._1(self[/* send */3], /* FetchNewPage */Block.__(3, [nextUrl]));
                                       return /* () */0;
                                     })
                                 }, ReasonReact.element(undefined, undefined, Str.make("next " + "»", /* array */[])))), typeof match === "number" ? (
@@ -203,6 +204,19 @@ function make() {
                                   /* characters : [] */0,
                                   /* responseInfo */state[/* responseInfo */2]
                                 ]]);
+                  case 3 : 
+                      var pageUrl = action[0];
+                      var callback = function (param) {
+                        return fetchPage(pageUrl, param);
+                      };
+                      return /* UpdateWithSideEffects */Block.__(2, [
+                                /* record */[
+                                  /* status : Loading */0,
+                                  /* characters */state[/* characters */1],
+                                  /* responseInfo */state[/* responseInfo */2]
+                                ],
+                                callback
+                              ]);
                   
                 }
               }

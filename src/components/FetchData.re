@@ -97,7 +97,8 @@ type action =
   | SetCharacters(list(character))
   | SetResponseInfo(responseInfo)
   | SetLoading
-  | SetLoadingFailed(string);
+  | SetLoadingFailed(string)
+  | FetchNewPage(string);
 
 let fetchCharacters = () =>
   Js.Promise.(
@@ -109,7 +110,7 @@ let fetchCharacters = () =>
     |> catch(_err => None |> resolve)
   );
 
-let fetchPage = (pageUrl, send) => {
+let fetchPage = (pageUrl: string, self: ReasonReact.self('a, 'b, 'c)) => {
   let parts = Js.String.split("rickandmortyapi.com", pageUrl);
   let apiUrl = List.nth(parts |> Array.to_list, 1);
   Js.Promise.(
@@ -123,14 +124,15 @@ let fetchPage = (pageUrl, send) => {
          switch (result) {
          | Some(rickAndMortyResponse) =>
            let characters = rickAndMortyResponse.results;
-           send(SetCharacters(characters));
-           send(SetResponseInfo(rickAndMortyResponse.info)) |> resolve;
+           self.send(SetCharacters(characters));
+           self.send(SetResponseInfo(rickAndMortyResponse.info)) |> resolve;
          | None =>
-           send(SetLoadingFailed("Failed to load some characters."))
+           self.send(SetLoadingFailed("Failed to load some characters."))
            |> resolve
          }
        )
-  );
+  )
+  |> ignore;
 };
 
 let listCharacters = (characters: list(character)) =>
@@ -220,6 +222,12 @@ let make = _children => {
     | SetLoadingFailed(msg) =>
       ReasonReact.Update({...state, characters: [], status: Error(msg)})
     | SetLoading => ReasonReact.Update({...state, status: Loading})
+    | FetchNewPage(pageUrl) =>
+      let callback = fetchPage(pageUrl);
+      ReasonReact.UpdateWithSideEffects(
+        {...state, status: Loading},
+        callback,
+      );
     },
   render: self => {
     let hasPrevious = exists(self.state.responseInfo.prevPageUrl);
@@ -231,13 +239,13 @@ let make = _children => {
       <span>
         <button
           disabled={!hasPrevious}
-          onClick={_e => fetchPage(prevUrl, self.send) |> ignore}>
+          onClick={_e => self.send(FetchNewPage(prevUrl)) |> ignore}>
           <Str s={{js|«|js} ++ " previous"} />
         </button>
         <Str s=" ... " />
         <button
           disabled={!hasNext}
-          onClick={_e => fetchPage(nextUrl, self.send) |> ignore}>
+          onClick={_e => self.send(FetchNewPage(nextUrl)) |> ignore}>
           <Str s={"next " ++ {js|»|js}} />
         </button>
       </span>
